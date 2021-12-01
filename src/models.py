@@ -108,11 +108,11 @@ class Planet(db.Model, GeneralModel):
             "surface_water": self.surface_water,   
             "url": self.url,   
         }
-    def get_character_by_id(id):
-        return Character.query.filter_by(id=id).first()
+    def get_planet_by_id(id):
+        return Planet.query.filter_by(id=id).first()
 
-    def get_all_characters():
-        return Character.query.all()
+    def get_all_planets():
+        return Planet.query.all()
 
 class Favorite(db.Model, GeneralModel):
     id = db.Column(db.Integer, primary_key=True)

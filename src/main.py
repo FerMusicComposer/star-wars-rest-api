@@ -159,6 +159,87 @@ def edit_character(character_id):
 
     return jsonify(response_body), 200
 
+# PLANET ROUTES
+@app.route('/get-planets', methods=['GET'])
+def get_planets():
+    planets = Planet.get_all_planets()
+
+    planets = list(map(lambda planet: planet.serialize(), planets))
+    return jsonify(planets), 200
+
+@app.route('/get-planet/<int:planet_id>', methods=['GET'])
+def get_planet_by_id(planet_id):
+    planet = Planet.get_planet_by_id(planet_id)
+
+    response_body = {
+        "msg": "Planet found.",
+        "planet": planet.serialize()
+    }
+
+    return jsonify(response_body), 200
+
+@app.route('/add-planet', methods=['POST'])
+def add_planet():
+    name = request.json.get('name')
+    diameter = request.json.get('diameter')
+    rotation_period = request.json.get('rotation_period')
+    orbital_period = request.json.get('orbital_period')
+    gravity = request.json.get('gravity')
+    population = request.json.get('population')
+    climate = request.json.get('climate')
+    terrain = request.json.get('terrain')
+    surface_water = request.json.get('surface_water')
+    url = request.json.get('url')
+    planet = Planet(name=name, diameter=diameter, rotation_period=rotation_period, orbital_period=orbital_period,
+    gravity=gravity, population=population, climate=climate, terrain=terrain, surface_water=surface_water,
+    url=url)
+
+    Planet.save(planet)
+
+    response_body = {
+        "msg": "Planet added sussesfully",
+        "planet": planet.name
+    }
+
+    return jsonify(response_body), 200
+
+@app.route('/edit-planet/<int:planet_id>', methods=['PUT'])
+def edit_planet(planet_id):
+    planet = Planet.get_planet_by_id(planet_id)
+
+    name = request.json.get('name')
+    diameter = request.json.get('diameter')
+    rotation_period = request.json.get('rotation_period')
+    orbital_period = request.json.get('orbital_period')
+    gravity = request.json.get('gravity')
+    population = request.json.get('population')
+    climate = request.json.get('climate')
+    terrain = request.json.get('terrain')
+    surface_water = request.json.get('surface_water')
+    url = request.json.get('url')
+
+    if name is None:
+        return jsonify({"msg": "Name is mandatory"})
+
+    planet.name = name
+    planet.diameter = diameter
+    planet.rotation_period = rotation_period
+    planet.orbital_period = orbital_period
+    planet.gravity = gravity
+    planet.population = population
+    planet.climate = climate
+    planet.terrain = terrain
+    planet.surface_water = surface_water
+    planet.url = url
+
+    Planet.commit()
+
+    response_body = {
+        "msg": "Planet updated sussesfully",
+        "planet": planet.name
+    }
+
+    return jsonify(response_body), 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
