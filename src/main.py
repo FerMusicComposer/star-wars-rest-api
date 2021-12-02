@@ -31,7 +31,8 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-# Fills DB with database.json test database. RUN THIS FIRST SO YOU CAN TEST THE ROUTES! 
+# Fills DB with database.json test database. RUN THIS FIRST SO YOU CAN TEST
+#  THE ROUTES! PD: RUN ONLY ONCE!!!
 @app.route("/fill-db", methods=['GET'])
 def fill_database():
     f = open("src/database.json", "r")
@@ -170,7 +171,8 @@ def get_planets():
 @app.route('/get-planet/<int:planet_id>', methods=['GET'])
 def get_planet_by_id(planet_id):
     planet = Planet.get_planet_by_id(planet_id)
-
+    print(planet)
+    
     response_body = {
         "msg": "Planet found.",
         "planet": planet.serialize()

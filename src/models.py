@@ -26,7 +26,7 @@ class User(db.Model, GeneralModel):
     
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %r>' % self.name
 
     def serialize(self):
         return {
@@ -56,7 +56,7 @@ class Character(db.Model, GeneralModel):
     favorites = db.relationship('Favorite', lazy=True)
 
     def __repr__(self):
-        return '<Character %r>' % self.charactername
+        return '<Character %r>' % self.name
 
     def serialize(self):
         return {
@@ -92,7 +92,7 @@ class Planet(db.Model, GeneralModel):
     favorites = db.relationship('Favorite', lazy=True)
 
     def __repr__(self):
-        return '<Planet %r>' % self.planetname
+        return '<Planet %r>' % self.name
 
     def serialize(self):
         return {
@@ -108,6 +108,7 @@ class Planet(db.Model, GeneralModel):
             "surface_water": self.surface_water,   
             "url": self.url,   
         }
+
     def get_planet_by_id(id):
         return Planet.query.filter_by(id=id).first()
 
