@@ -10,7 +10,7 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User, Character, Planet, Favorite
-#from models import Person
+
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
@@ -64,6 +64,17 @@ def get_users():
 
     users = list(map(lambda user: user.serialize(), users))
     return jsonify(users), 200
+
+@app.route('/get-user-by-id/<int:user_id>', methods=['GET'])
+def get_user_by_id(user_id):
+    user = User.get_user_by_id(user_id)
+
+    response_body = {
+        "msg": "User found",
+        "user": user.name
+    }
+
+    return jsonify(response_body), 200
 
 @app.route('/add-user', methods=['POST'])
 def add_user():
@@ -171,7 +182,6 @@ def get_planets():
 @app.route('/get-planet/<int:planet_id>', methods=['GET'])
 def get_planet_by_id(planet_id):
     planet = Planet.get_planet_by_id(planet_id)
-    print(planet)
     
     response_body = {
         "msg": "Planet found.",
@@ -242,6 +252,34 @@ def edit_planet(planet_id):
     }
 
     return jsonify(response_body), 200
+
+# FAVORITE ROUTES
+@app.route('/get-user-favorites/<int:user_id>', methods=['GET'])
+def get_user_favorites(user_id):
+    user = User.get_user_by_id(user_id)
+
+    response_body = {
+        "msg": "favorites list",
+        "favorites": user.favorites
+    }
+
+    return jsonify(response_body), 200
+
+@app.route('/add-favorite/planet/<int:user_id>/<int:planet_id>', methods=['POST'])
+def add_favorite_planet(user_id, planet_id):
+    user = User.get_user_by_id(user_id)
+    planet = Planet.get_planet_by_id(planet_id)
+
+    favorite_planet = Favorite(user_id=user.id, planet_name=planet.name)
+   
+    jsonify(favorite_planet)
+    response_body = {
+        "msg": "Planet added to favorites",
+        "favorite_planets": user.favorites
+    }
+
+    return jsonify(response_body), 200
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
