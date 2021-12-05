@@ -253,14 +253,17 @@ def edit_planet(planet_id):
 
     return jsonify(response_body), 200
 
-# FAVORITE ROUTES
+# FAVORITES ROUTES
 @app.route('/get-user-favorites/<int:user_id>', methods=['GET'])
 def get_user_favorites(user_id):
     user = User.get_user_by_id(user_id)
 
+    favorites = Favorite.query.filter_by(user_id = user.id)
+    favorites = list(map(lambda favorite: favorite.serialize(), favorites))
+
     response_body = {
-        "msg": "favorites list",
-        "favorites": user.favorites
+        "msg": "{name}'s favorites list".format(name=user.name),
+        "favorites": favorites
     }
 
     return jsonify(response_body), 200
@@ -270,16 +273,36 @@ def add_favorite_planet(user_id, planet_id):
     user = User.get_user_by_id(user_id)
     planet = Planet.get_planet_by_id(planet_id)
 
-    favorite_planet = Favorite(user_id=user.id, planet_name=planet.name)
+    favorite_planet = Favorite(user_id=user.id, planet_id=planet.id)
    
-    jsonify(favorite_planet)
+    favorite_planet.save()
+
+    favorites = Favorite.query.filter_by(user_id = user.id)
+    favorites = list(map(lambda favorite: favorite.serialize(), favorites))
+
     response_body = {
-        "msg": "Planet added to favorites",
-        "favorite_planets": user.favorites
+        "msg": "planet {planet_name} has been added to {name} favorites list".format(name=user.name, planet_name=planet.name)
     }
 
     return jsonify(response_body), 200
 
+@app.route('/add-favorite/character/<int:user_id>/<int:character_id>', methods=['POST'])
+def add_favorite_character(user_id, character_id):
+    user = User.get_user_by_id(user_id)
+    character = Character.get_character_by_id(character_id)
+
+    favorite_character = Favorite(user_id=user.id, character_id=character.id)
+   
+    favorite_character.save()
+
+    favorites = Favorite.query.filter_by(user_id = user.id)
+    favorites = list(map(lambda favorite: favorite.serialize(), favorites))
+
+    response_body = {
+        "msg": "character {character_name} has been added to {name} favorites list".format(name=user.name, character_name=character.name)
+    }
+
+    return jsonify(response_body), 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':

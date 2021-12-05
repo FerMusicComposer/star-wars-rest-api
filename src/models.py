@@ -118,17 +118,16 @@ class Planet(db.Model, GeneralModel):
 class Favorite(db.Model, GeneralModel):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user_name = db.Column(db.String(250), nullable=False)  
     character_id = db.Column(db.Integer, db.ForeignKey('character.id'))
-    character_name = db.Column(db.String(250), nullable=True)  
     planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'))
-    planet_name = db.Column(db.String(250), nullable=True)  
+ 
     
 
     def serialize(self):
         return {
-            "planet_name": self.planet_name,
-            "character_name": self.character_name
+            "user_id": self.user_id,
+            "planet_id": self.planet_id,
+            "character_id": self.character_id,
         }
 
     
