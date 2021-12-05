@@ -62,16 +62,21 @@ def fill_database():
 def get_users():
     users = User.get_all_users()
 
-    users = list(map(lambda user: user.serialize(), users))
-    return jsonify(users), 200
+    users = list(map(lambda user: user.name, users))
+
+    response_body = {
+        "msg": "Users list",
+        "users": users
+    }
+
+    return jsonify(response_body), 200
 
 @app.route('/get-user-by-id/<int:user_id>', methods=['GET'])
 def get_user_by_id(user_id):
     user = User.get_user_by_id(user_id)
 
     response_body = {
-        "msg": "User found",
-        "user": user.name
+        "msg": "User {name} found".format(name=user.name)
     }
 
     return jsonify(response_body), 200
