@@ -309,6 +309,28 @@ def add_favorite_character(user_id, character_id):
 
     return jsonify(response_body), 200
 
+@app.route('/delete-favorite/planet/<int:user_id>/<int:planet_id>', methods=['DELETE'])
+def delete_favorite_planet(user_id, planet_id):
+    user = User.get_user_by_id(user_id)
+    planet = Planet.get_planet_by_id(planet_id)
+
+    favorites = Favorite.query.filter_by(user_id = user.id)
+    favorites = list(map(lambda favorite: favorite.serialize(), favorites))
+
+    for favorite in favorites:
+        for key in favorite.keys():
+            if planet_id == favorite[key] and planet.id == planet_id:
+                print('this is the planet_id to delete',favorite[key])
+                favorites.remove(favorite)
+
+
+    response_body = {
+        "msg": "planet has been deleted from {name} favorites list".format(name=user.name)
+    }
+
+    return jsonify(response_body), 200
+
+
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
