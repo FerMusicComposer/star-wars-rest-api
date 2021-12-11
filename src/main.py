@@ -9,7 +9,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, Character, Planet, Favorite_Planet
+from models import db, User, Character, Planet, Favorite_Planet, Favorite_Character
 
 
 app = Flask(__name__)
@@ -252,8 +252,7 @@ def edit_planet(planet_id):
     Planet.commit()
 
     response_body = {
-        "msg": "Planet updated sussesfully",
-        "planet": planet.name
+        "msg": "Planet {planet_name} updated sussesfully".format(planet_name=planet.name)
     }
 
     return jsonify(response_body), 200
@@ -267,7 +266,7 @@ def get_user_favorite_planets(user_id):
     favorite_planets = list(map(lambda favorite_planet: favorite_planet.serialize(), favorite_planets))
 
     response_body = {
-        "msg": "{name}'s favorites list".format(name=user.name),
+        "msg": "{name}'s favorite planets list".format(name=user.name),
         "favorite_planets": favorite_planets
     }
 
@@ -291,13 +290,77 @@ def add_favorite_planet(user_id, planet_id):
 
     return jsonify(response_body), 200
 
-#@app.route('/delete-favorite/planet/<int:user_id>/<int:planet_id>', methods=['DELETE'])
+@app.route('/delete-favorite-planet/<int:user_id>/<int:planet_id>', methods=['DELETE'])
+def delete_favorite_planet(user_id, planet_id):
+    user = User.get_user_by_id(user_id)
+    planet = Planet.get_planet_by_id(planet_id)
 
+    favorite_planets = Favorite_Planet.query.filter_by(user_id = user.id)
+    favorite_planets = list(map(lambda favorite_planet: favorite_planet.serialize(), favorite_planets))
 
+    for favorite in favorite_planets:
+        for key in favorite:
+            if favorite[key] == planet.id:
+                favorite_planets.remove(favorite)
+                print(favorite_planets)
 
+    response_body = {
+        "msg": "planet {planet_name} has been removed from {name} favorites list".format(name=user.name, planet_name=planet.name)
+    }
 
-#@app.route('/add-favorite/character/<int:user_id>/<int:character_id>', methods=['POST'])
+    return jsonify(response_body), 200
 
+@app.route('/get-user-favorite-characters/<int:user_id>', methods=['GET'])
+def get_user_favorite_characters(user_id):
+    user = User.get_user_by_id(user_id)
+
+    favorite_characters = Favorite_Character.query.filter_by(user_id = user.id)
+    favorite_characters = list(map(lambda favorite_character: favorite_character.serialize(), favorite_characters))
+
+    response_body = {
+        "msg": "{name}'s favorite characters list".format(name=user.name),
+        "favorite_characters": favorite_characters
+    }
+
+    return jsonify(response_body), 200
+
+@app.route('/add-favorite-character/<int:user_id>/<int:character_id>', methods=['POST'])
+def add_favorite_character(user_id, character_id):
+    user = User.get_user_by_id(user_id)
+    character = Character.get_character_by_id(character_id)
+
+    favorite_character = Favorite_Character(user_id=user.id, character_id=character.id)
+   
+    favorite_character.save()
+
+    favorite_characters = Favorite_Character.query.filter_by(user_id = user.id)
+    favorite_characters = list(map(lambda favorite_character: favorite_character.serialize(), favorite_characters))
+
+    response_body = {
+        "msg": "character {character_name} has been added to {name} favorites list".format(name=user.name, character_name=character.name)
+    }
+
+    return jsonify(response_body), 200
+
+@app.route('/delete-favorite-character/<int:user_id>/<int:character_id>', methods=['DELETE'])
+def delete_favorite_character(user_id, character_id):
+    user = User.get_user_by_id(user_id)
+    character = Character.get_character_by_id(character_id)
+
+    favorite_characters = Favorite_Character.query.filter_by(user_id = user.id)
+    favorite_characters = list(map(lambda favorite_character: favorite_character.serialize(), favorite_characters))
+
+    for favorite in favorite_characters:
+        for key in favorite:
+            if favorite[key] == character.id:
+                favorite_characters.remove(favorite)
+                print(favorite_characters)
+
+    response_body = {
+        "msg": "character {character_name} has been removed from {name} favorites list".format(name=user.name, character_name=character.name)
+    }
+
+    return jsonify(response_body), 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':

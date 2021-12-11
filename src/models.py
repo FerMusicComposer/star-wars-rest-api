@@ -23,6 +23,7 @@ class User(db.Model, GeneralModel):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
     favorite_planets = db.relationship('Favorite_Planet', backref='user', lazy=True)
+    favorite_characters = db.relationship('Favorite_Character', backref='user', lazy=True)
     
 
     def __repr__(self):
@@ -53,7 +54,7 @@ class Character(db.Model, GeneralModel):
     birth_year = db.Column(db.String(250))
     gender = db.Column(db.String(250))
     url = db.Column(db.String(250))
-    #favorites = db.relationship('Favorite', backref='character', lazy=True)
+    favorite_characters = db.relationship('Favorite_Character', backref='character', lazy=True)
 
     def __repr__(self):
         return '<Character %r>' % self.name
@@ -125,5 +126,12 @@ class Favorite_Planet(db.Model, GeneralModel):
             "planet_id": self.planet_id,
         }
 
-    def get_user_favorite_planets(id):
-        return Favorite_Planet.filter_by(id=id).query.all()
+class Favorite_Character(db.Model, GeneralModel):
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    character_id = db.Column(db.Integer, db.ForeignKey('character.id'), primary_key=True)
+
+    def serialize(self):
+        return {
+            "user_id": self.user_id,
+            "character_id": self.character_id,
+        }
