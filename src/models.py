@@ -22,7 +22,7 @@ class User(db.Model, GeneralModel):
     name = db.Column(db.String(120), unique=False, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
-    favorites = db.relationship('Favorite', backref='user', lazy=True)
+    favorite_planets = db.relationship('Favorite_Planet', backref='user', lazy=True)
     
 
     def __repr__(self):
@@ -33,7 +33,7 @@ class User(db.Model, GeneralModel):
             "id": self.id,
             "name": self.name,
             "email": self.email, 
-            "favorites": self.favorites  
+            "favorite_planets": self.favorite_planets  
         }
 
     def get_user_by_id(id):
@@ -53,7 +53,7 @@ class Character(db.Model, GeneralModel):
     birth_year = db.Column(db.String(250))
     gender = db.Column(db.String(250))
     url = db.Column(db.String(250))
-    favorites = db.relationship('Favorite', backref='character', lazy=True)
+    #favorites = db.relationship('Favorite', backref='character', lazy=True)
 
     def __repr__(self):
         return '<Character %r>' % self.name
@@ -89,7 +89,7 @@ class Planet(db.Model, GeneralModel):
     terrain = db.Column(db.String(250))
     surface_water = db.Column(db.Integer)
     url = db.Column(db.String(250))
-    favorites = db.relationship('Favorite', backref='planet', lazy=True)
+    favorite_planet = db.relationship('Favorite_Planet', backref='planet', lazy=True)
 
     def __repr__(self):
         return '<Planet %r>' % self.name
@@ -115,19 +115,15 @@ class Planet(db.Model, GeneralModel):
     def get_all_planets():
         return Planet.query.all()
 
-class Favorite(db.Model, GeneralModel):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    character_id = db.Column(db.Integer, db.ForeignKey('character.id'))
-    planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'))
- 
-    
+class Favorite_Planet(db.Model, GeneralModel):
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'), primary_key=True)
 
     def serialize(self):
         return {
             "user_id": self.user_id,
             "planet_id": self.planet_id,
-            "character_id": self.character_id,
         }
 
-    
+    def get_user_favorite_planets(id):
+        return Favorite_Planet.filter_by(id=id).query.all()

@@ -9,7 +9,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, Character, Planet, Favorite
+from models import db, User, Character, Planet, Favorite_Planet
 
 
 app = Flask(__name__)
@@ -259,31 +259,31 @@ def edit_planet(planet_id):
     return jsonify(response_body), 200
 
 # FAVORITES ROUTES
-@app.route('/get-user-favorites/<int:user_id>', methods=['GET'])
-def get_user_favorites(user_id):
+@app.route('/get-user-favorite-planets/<int:user_id>', methods=['GET'])
+def get_user_favorite_planets(user_id):
     user = User.get_user_by_id(user_id)
 
-    favorites = Favorite.query.filter_by(user_id = user.id)
-    favorites = list(map(lambda favorite: favorite.serialize(), favorites))
+    favorite_planets = Favorite_Planet.query.filter_by(user_id = user.id)
+    favorite_planets = list(map(lambda favorite_planet: favorite_planet.serialize(), favorite_planets))
 
     response_body = {
         "msg": "{name}'s favorites list".format(name=user.name),
-        "favorites": favorites
+        "favorite_planets": favorite_planets
     }
 
     return jsonify(response_body), 200
 
-@app.route('/add-favorite/planet/<int:user_id>/<int:planet_id>', methods=['POST'])
+@app.route('/add-favorite-planet/<int:user_id>/<int:planet_id>', methods=['POST'])
 def add_favorite_planet(user_id, planet_id):
     user = User.get_user_by_id(user_id)
     planet = Planet.get_planet_by_id(planet_id)
 
-    favorite_planet = Favorite(user_id=user.id, planet_id=planet.id)
+    favorite_planet = Favorite_Planet(user_id=user.id, planet_id=planet.id)
    
     favorite_planet.save()
 
-    favorites = Favorite.query.filter_by(user_id = user.id)
-    favorites = list(map(lambda favorite: favorite.serialize(), favorites))
+    favorite_planets = Favorite_Planet.query.filter_by(user_id = user.id)
+    favorite_planets = list(map(lambda favorite_planet: favorite_planet.serialize(), favorite_planets))
 
     response_body = {
         "msg": "planet {planet_name} has been added to {name} favorites list".format(name=user.name, planet_name=planet.name)
@@ -291,44 +291,12 @@ def add_favorite_planet(user_id, planet_id):
 
     return jsonify(response_body), 200
 
-@app.route('/add-favorite/character/<int:user_id>/<int:character_id>', methods=['POST'])
-def add_favorite_character(user_id, character_id):
-    user = User.get_user_by_id(user_id)
-    character = Character.get_character_by_id(character_id)
-
-    favorite_character = Favorite(user_id=user.id, character_id=character.id)
-   
-    favorite_character.save()
-
-    favorites = Favorite.query.filter_by(user_id = user.id)
-    favorites = list(map(lambda favorite: favorite.serialize(), favorites))
-
-    response_body = {
-        "msg": "character {character_name} has been added to {name} favorites list".format(name=user.name, character_name=character.name)
-    }
-
-    return jsonify(response_body), 200
-
-@app.route('/delete-favorite/planet/<int:user_id>/<int:planet_id>', methods=['DELETE'])
-def delete_favorite_planet(user_id, planet_id):
-    user = User.get_user_by_id(user_id)
-    planet = Planet.get_planet_by_id(planet_id)
-
-    favorites = Favorite.query.filter_by(user_id = user.id)
-    favorites = list(map(lambda favorite: favorite.serialize(), favorites))
-
-    for favorite in favorites:
-        for key in favorite.keys():
-            if planet_id == favorite[key] and planet.id == planet_id:
-                print('this is the planet_id to delete',favorite[key])
-                favorites.remove(favorite)
+#@app.route('/delete-favorite/planet/<int:user_id>/<int:planet_id>', methods=['DELETE'])
 
 
-    response_body = {
-        "msg": "planet has been deleted from {name} favorites list".format(name=user.name)
-    }
 
-    return jsonify(response_body), 200
+
+#@app.route('/add-favorite/character/<int:user_id>/<int:character_id>', methods=['POST'])
 
 
 # this only runs if `$ python src/main.py` is executed
